@@ -113,8 +113,17 @@ def fetch_domains_concurrently(ip_addresses):
 # DNS查询函数
 def dns_lookup(domain):
     print(f"Performing DNS lookup for {domain}...")
-    result = subprocess.run(["nslookup", domain], capture_output=True, text=True)
-    return domain, result.stdout
+    result = subprocess.Popen(
+        ["nslookup", domain],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        creationflags=subprocess.CREATE_NO_WINDOW  # 不显示窗口
+    )
+    stdout, stderr = result.communicate()
+    return domain, stdout
+
 
 # 通过域名列表获取绑定过的所有ip
 def perform_dns_lookups(domain_filename, result_filename, unique_ipv4_filename):
